@@ -1,0 +1,15 @@
+export type Lang = 'en' | 'ar';
+export type ProjectStatus = 'planning' | 'active' | 'on_hold' | 'completed';
+export type TaskStatus = 'todo' | 'in_progress' | 'done';
+export type Priority = 'low' | 'medium' | 'high';
+export type Profile = { id: string; full_name: string };
+export type Studio = { id: string; name: string; owner_id: string };
+export type Member = { id: string; studio_id: string; user_id: string; role: 'owner' | 'member'; full_name: string };
+export type Project = { id: string; studio_id: string; name: string; client: string; description: string; status: ProjectStatus; start_date: string; due_date: string; current_phase: string | null; notes: string; links: { label: string; url: string }[]; archived: boolean; cover: number; created_at: string };
+export type Phase = { id: string; studio_id: string; project_id: string; name: string; position: number };
+export type Task = { id: string; studio_id: string; project_id: string; phase_id: string | null; title: string; description: string; assignee_id: string | null; priority: Priority; due_date: string; status: TaskStatus; created_at: string };
+export type Comment = { id: string; studio_id: string; project_id: string; author_id: string; body: string; created_at: string; updated_at: string };
+export type Activity = { id: string; studio_id: string; project_id: string | null; actor_id: string | null; action: string; subject: string; created_at: string };
+export type Invitation = { id: string; studio_id: string; email: string; expires_at: string; revoked: boolean; accepted_at: string | null };
+export type Data = { studio: Studio | null; profile: Profile; members: Member[]; projects: Project[]; phases: Phase[]; tasks: Task[]; comments: Comment[]; activities: Activity[]; invitations: Invitation[] };
+export type Entity = 'projects' | 'phases' | 'tasks' | 'comments';
