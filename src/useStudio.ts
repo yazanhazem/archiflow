@@ -53,6 +53,9 @@ export function useStudio() {
       if (!active || receivedEvent) return;
       if (err) setAuthError(err.message);
       setSession(result.session); setReady(true);
+    }).catch(err => {
+      if (!active || receivedEvent) return;
+      setAuthError(errorMessage(err)); setReady(true);
     });
     return () => { active = false; listener.subscription.unsubscribe(); };
   }, []);
@@ -242,6 +245,8 @@ export function useStudio() {
       if (!supabase) return;
       const result = await supabase.auth.signOut();
       if (result.error) throw result.error;
+      setRecovery(false);
+      history.replaceState(null, '', `${location.pathname}${location.hash}`);
     },
   };
 }

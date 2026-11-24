@@ -12,6 +12,7 @@ import { Tasks } from './TaskViews';
 import { errorMessage } from './utils';
 import { parseRoute } from './workspaceRoutes';
 import { useTheme } from './theme';
+import { Landing } from './Landing';
 
 export default function App() {
   const studio = useStudio();
@@ -27,12 +28,13 @@ export default function App() {
   const [modal, setModal] = useState<{ title: string; body: ReactNode; workspace: string; returnFocus: HTMLElement | null } | null>(null);
   const [toast, setToast] = useState<{ text: string; error: boolean } | null>(null); const [busy, setBusy] = useState(false); const busyRef = useRef(false);
   const t = translator(lang);
-  const [token] = useState(() => {
+  const [token, setToken] = useState(() => {
     const fromLink = location.hash.startsWith('#/invite?') ? new URLSearchParams(location.hash.split('?')[1]).get('token') : null;
     if (fromLink) sessionStorage.setItem('studio-invitation', fromLink);
     return fromLink || sessionStorage.getItem('studio-invitation');
   });
   const navigate = useCallback((next: string) => { location.hash = next; setMobile(false); }, []);
+  const dismissInvitation = () => { sessionStorage.removeItem('studio-invitation'); setToken(null); navigate('/overview'); };
   const closeModal = useCallback(() => setModal(null), []);
   const run = useCallback(async (action: () => Promise<unknown> | unknown, message?: string, close = false) => {
     if (busyRef.current) return false;
@@ -45,6 +47,10 @@ export default function App() {
     const hash = () => {
       const next = parseRoute(location.hash);
       setRoute(next);
+      if (next.path === '/invite') {
+        const incoming = next.params.get('token');
+        if (incoming) { sessionStorage.setItem('studio-invitation', incoming); setToken(incoming); }
+      }
       setModal(null);
       setMobile(false);
       if (next.path !== path) {
@@ -101,12 +107,12 @@ export default function App() {
   const initial = !studio.ready || studio.loading && !hasStudio;
   const auth = !studio.demo && (!studio.session || studio.recovery);
   return <AppContext.Provider value={{ studio, lang, setLang: changeLang, t, theme, setTheme, navigate, params, busy, openModal, closeModal, run }}>
-    {initial ? <div className="loading-screen"><DraftingCompass size={32}/><p>{t('Loading your studio…')}</p></div> : auth ? <Auth/> : studio.error && !hasStudio ? <div className="onboarding"><h1>{t('Something went wrong')}</h1><p role="alert">{t(studio.error)}</p><button className="button primary" onClick={() => void run(studio.refresh)}>{t('Retry')}</button><button className="text-button" onClick={() => void run(studio.signOut)}>{t('Sign out')}</button></div> : !hasStudio ? <Onboarding token={token}/> : <div className="app-shell" inert={Boolean(activeModal)}>
+    {initial ? <div className="loading-screen"><DraftingCompass size={32}/><p>{t('Loading your studio…')}</p></div> : !studio.session && (!location.hash && !location.search || path === '/welcome') ? <Landing/> : auth || !studio.session && ['/signin', '/signup'].includes(path) ? <Auth key={path}/> : studio.error && !hasStudio ? <div className="onboarding"><h1>{t('Something went wrong')}</h1><p role="alert">{t(studio.error)}</p><button className="button primary" onClick={() => void run(studio.refresh)}>{t('Retry')}</button><button className="text-button" onClick={() => void run(studio.signOut)}>{t('Sign out')}</button></div> : !hasStudio ? <Onboarding token={token} dismissInvitation={dismissInvitation}/> : <div className="app-shell" inert={Boolean(activeModal)}>
       <a href="#main" className="skip-link" tabIndex={mobile && narrow ? -1 : undefined} onClick={e => { e.preventDefault(); document.getElementById('main')?.focus(); }}>{t('Skip to content')}</a>
       {mobile && <button tabIndex={-1} aria-label={t('Close navigation')} className="sidebar-backdrop" onClick={dismissDrawer}/>}
       <aside ref={navRef} id="studio-navigation" inert={narrow && !mobile} aria-hidden={narrow && !mobile ? true : undefined} className={`sidebar ${mobile ? 'is-open' : ''}`}>
         {narrow && <button ref={drawerCloseRef} className="icon-button drawer-close" aria-label={t('Close navigation')} onClick={dismissDrawer}><X size={20}/></button>}
-        <a className="brand" href="#/overview" onClick={followSidebarLink}><span className="brand-symbol"><DraftingCompass size={24}/></span><span>architect<span className="brand-light">studio</span></span></a>
+        <a className="brand" href="#/overview" onClick={followSidebarLink}><span className="brand-symbol"><DraftingCompass size={24}/></span><span>archi<span className="brand-light">flow</span></span></a>
         <button className="studio-switcher" onClick={() => navigate('/settings')}><span className="studio-mark">{studio.data.studio!.name[0].toUpperCase()}</span><span><strong>{studio.data.studio!.name}</strong><small>{t('Studio workspace')}</small></span><Settings2 size={15}/></button>
         <nav aria-label={t('Workspace')}>{navigation.map(item => {
           const active = path === item.path || item.path === '/projects' && path.startsWith('/projects/');
@@ -118,7 +124,7 @@ export default function App() {
       {studio.demo && <div className="demo-banner"><span><span className="demo-pill">{t('Demo workspace')}</span><span className="demo-explanation">{t('Saved on this device')}</span></span><button onClick={studio.leaveDemo}>{t('Connect your studio')}</button></div>}
       {!studio.online && !studio.demo && <div role="alert" className="offline-banner">{t('You are offline. Reconnect before saving changes.')}</div>}
       {studio.error && <div className="offline-banner" role="status">{t('Your workspace may be out of date.')} <button className="text-button" disabled={studio.syncing} onClick={() => void studio.refresh()}>{t('Retry sync')}</button></div>}
-      {path === '/invite' && token ? <div className="invitation-notice"><CircleHelp size={20}/><span>{t(studio.demo ? 'Demo data stays in this browser. Connect Supabase for real team collaboration.' : 'Already in a studio')}</span><button className="button secondary" onClick={() => { sessionStorage.removeItem('studio-invitation'); navigate('/overview'); }}>{t('Continue')}</button></div> : null}
+      {path === '/invite' && token ? <div className="invitation-notice"><CircleHelp size={20}/><span>{t(studio.demo ? 'Demo data stays in this browser. Connect Supabase for real team collaboration.' : 'Already in a studio')}</span><button className="button secondary" onClick={dismissInvitation}>{t('Continue')}</button></div> : null}
       <main id="main" tabIndex={-1} aria-busy={busy} className="main-content">{content}</main></div>
     </div>}
     {activeModal && <Modal title={activeModal.title} returnFocus={activeModal.returnFocus} onClose={closeModal}>{activeModal.body}</Modal>}

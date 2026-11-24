@@ -38,6 +38,9 @@ const ar: Record<string, string> = {
 
 const en: Record<string, string> = { planning: 'Planning', active: 'Active', on_hold: 'On hold', completed: 'Completed', todo: 'To do', in_progress: 'In progress', done: 'Done', low: 'Low', medium: 'Medium', high: 'High', owner: 'Owner', member: 'Member' };
 Object.assign(ar, {
+  'Resend confirmation': 'إعادة إرسال التأكيد', 'Resend confirmation email': 'إعادة إرسال رسالة التأكيد',
+  'If this account needs confirmation, a new email has been sent.': 'إذا كان الحساب يحتاج إلى تأكيد، فقد أُرسلت رسالة جديدة.',
+  'Dismiss invitation': 'تجاهل الدعوة',
   'Studio overview': 'نظرة عامة على الاستوديو', 'Studio tasks': 'مهام الاستوديو', 'Due in 7 days': 'تستحق خلال ٧ أيام',
   'No open tasks assigned to you': 'لا توجد مهام مفتوحة مسندة إليك',
   'All deadlines': 'كل المواعيد النهائية', 'Clear filters': 'مسح عوامل التصفية',

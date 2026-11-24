@@ -1,9 +1,11 @@
-# Architect Studio
+# Archiflow
 
 A bilingual English/Arabic organizer for architecture studios. The React frontend deploys to **Vercel** from [yazanhazem/archiflow](https://github.com/yazanhazem/archiflow). Supabase provides authentication, PostgreSQL data, database access policies, and Realtime updates.
 
 ## What is included
 
+- Public English/Arabic landing page with demo access, account entry, theme controls, and a free early-access overview. Paid subscriptions are not connected yet.
+- Confirmation email resending and dismissible studio invitations.
 - Dashboard with shortcuts to active projects, open tasks, overdue tasks, and tasks due within seven calendar days.
 - Project task lists grouped by phase and a status board with keyboard-accessible status controls. Both views support direct links.
 - Projects with six editable architectural phase names, notes, safe external reference links, status, date ranges, and archive/restore.
